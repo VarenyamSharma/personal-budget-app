@@ -63,7 +63,7 @@ export function ExpenseChart({ transactions }: ExpenseChartProps) {
                   dataKey="amount" 
                   fill="hsl(var(--primary))"
                   radius={[4, 4, 0, 0]}
-                  className="fill-primary"
+                  className="fill-blue-600"
                 />
               </BarChart>
             </ResponsiveContainer>

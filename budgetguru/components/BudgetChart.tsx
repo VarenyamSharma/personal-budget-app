@@ -74,7 +74,7 @@ export function BudgetChart({ budgets }: BudgetChartProps) {
                 <Legend />
                 <Bar 
                   dataKey="budget" 
-                  fill="hsl(var(--primary))"
+                  fill="rgb(37, 99, 235)"
                   name="Budget"
                   radius={[2, 2, 0, 0]}
                 />
