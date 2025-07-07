@@ -51,7 +51,9 @@ export async function GET() {
       {
         error: "Failed to fetch budgets",
         details:
-          process.env.NODE_ENV === "development" ? error.message : undefined,
+          process.env.NODE_ENV === "development" && error instanceof Error
+            ? error.message
+            : undefined,
       },
       { status: 500 }
     );
