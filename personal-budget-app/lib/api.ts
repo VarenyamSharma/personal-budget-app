@@ -45,17 +45,17 @@ async function apiRequest<T>(
     return await response.json();
   } catch (error) {
     clearTimeout(timeoutId);
-    
+
     if (error instanceof ApiError) {
       throw error;
     }
-    
-    if (error.name === 'AbortError') {
+
+    if (error instanceof Error && error.name === 'AbortError') {
       throw new ApiError('Request timeout', 408, 'TIMEOUT');
     }
-    
+
     throw new ApiError(
-      error.message || 'Network error occurred',
+      error instanceof Error ? error.message : 'Network error occurred',
       0,
       'NETWORK_ERROR'
     );
@@ -92,7 +92,9 @@ export const transactionApi = {
       });
     } catch (error) {
       console.error('Failed to create transaction:', error);
-      throw new Error(error.message || 'Failed to create transaction. Please try again.');
+      throw new Error(
+        error instanceof Error ? error.message : 'Failed to create transaction. Please try again.'
+      );
     }
   },
 
