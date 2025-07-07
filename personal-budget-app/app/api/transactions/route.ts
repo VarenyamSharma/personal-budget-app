@@ -10,14 +10,14 @@ export async function GET() {
       .sort({ createdAt: -1 })
       .limit(1000) // Limit to prevent memory issues
       .lean(); // Use lean() for better performance
-    
+
     return NextResponse.json(transactions);
   } catch (error) {
     console.error('Error fetching transactions:', error);
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to fetch transactions',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        details: process.env.NODE_ENV === 'development' && error instanceof Error ? error.message : undefined
       },
       { status: 500 }
     );
@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(savedTransaction, { status: 201 });
   } catch (error: any) {
     console.error('Error creating transaction:', error);
-    
+
     // Handle MongoDB validation errors
     if (error.name === 'ValidationError') {
       const validationErrors = Object.values(error.errors).map((err: any) => err.message);
@@ -134,11 +134,11 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { 
-        error: 'Failed to create transaction',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
-      },
-      { status: 500 }
-    );
+  { 
+    error: 'Failed to create transaction',
+    details: process.env.NODE_ENV === 'development' && error instanceof Error ? error.message : undefined
+  },
+  { status: 500 }
+);
   }
 }
