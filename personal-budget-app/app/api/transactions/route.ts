@@ -134,11 +134,11 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-  { 
-    error: 'Failed to create transaction',
-    details: process.env.NODE_ENV === 'development' && error instanceof Error ? error.message : undefined
-  },
-  { status: 500 }
-);
+      {
+        error: 'Failed to create transaction',
+        details: process.env.NODE_ENV === 'development' && error instanceof Error ? error.message : undefined
+      },
+      { status: 500 }
+    );
   }
 }
