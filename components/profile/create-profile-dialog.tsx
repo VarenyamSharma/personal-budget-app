@@ -135,7 +135,7 @@ export function CreateProfileDialog() {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Create New Profile Group
+            Create New Profile / Group
           </DialogTitle>
           <DialogDescription>
             Set up a new group with multiple profiles for tracking finances together.

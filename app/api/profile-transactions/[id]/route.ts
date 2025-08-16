@@ -1,56 +1,105 @@
-import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/lib/db";
-import ProfileTransaction from "@/models/ProfileTransaction";
+import {
+    NextRequest,
+    NextResponse
+} from 'next/server';
+import dbConnect from '@/lib/db';
+import ProfileTransaction from '@/models/ProfileTransaction';
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const { id } = params;
-  try {
-    await dbConnect();
-    const body = await request.json();
-    const updatedTransaction = await ProfileTransaction.findByIdAndUpdate(
-      id,
-      body,
-      { new: true }
-    );
-    if (!updatedTransaction) {
-      return NextResponse.json(
-        { error: "Transaction not found" },
-        { status: 404 }
-      );
+export async function PUT(req: NextRequest, {
+    params
+}: {
+    params: {
+        id: string
     }
-    return NextResponse.json(updatedTransaction);
-  } catch (error) {
-    console.error("Error updating profile transaction:", error);
-    return NextResponse.json(
-      { error: "Failed to update transaction" },
-      { status: 500 }
-    );
-  }
+}) {
+    try {
+        await dbConnect();
+        const body = await req.json();
+        const {
+            id,
+            _id,
+            assetId,
+            ...updateData
+        } = body;
+
+        const updateOps: any = {
+            $set: updateData
+        };
+
+        // This block prevents the database conflict.
+        if (assetId && assetId !== 'none') {
+            updateOps.$set.assetId = assetId;
+        } else {
+            updateOps.$unset = {
+                assetId: ""
+            };
+        }
+
+        const updatedTransaction = await ProfileTransaction.findByIdAndUpdate(
+            params.id,
+            updateOps, {
+                new: true,
+                runValidators: true
+            }
+        ).lean();
+
+        if (!updatedTransaction) {
+            return NextResponse.json({
+                message: 'Transaction not found'
+            }, {
+                status: 404
+            });
+        }
+
+        return NextResponse.json(updatedTransaction, {
+            status: 200
+        });
+
+    } catch (error: any) {
+        console.error('Error updating profile transaction:', error);
+        const status = error.name === 'ValidationError' ? 400 : 500;
+        return NextResponse.json({
+            message: error.message,
+            error: error
+        }, {
+            status
+        });
+    }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const { id } = params;
-  try {
-    await dbConnect();
-    const deletedTransaction = await ProfileTransaction.findByIdAndDelete(id);
-    if (!deletedTransaction) {
-      return NextResponse.json(
-        { error: "Transaction not found" },
-        { status: 404 }
-      );
+export async function DELETE(req: NextRequest, {
+    params
+}: {
+    params: {
+        id: string
     }
-    return NextResponse.json({ message: "Transaction deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting profile transaction:", error);
-    return NextResponse.json(
-      { error: "Failed to delete transaction" },
-      { status: 500 }
-    );
-  }
+}) {
+    try {
+        await dbConnect();
+
+        const deletedTransaction = await ProfileTransaction.findByIdAndDelete(params.id);
+
+        if (!deletedTransaction) {
+            return NextResponse.json({
+                message: 'Transaction not found'
+            }, {
+                status: 404
+            });
+        }
+
+        return NextResponse.json({
+            message: 'Transaction deleted successfully'
+        }, {
+            status: 200
+        });
+
+    } catch (error: any) {
+        console.error('Error deleting profile transaction:', error);
+        return NextResponse.json({
+            message: 'Server error',
+            error: error.message
+        }, {
+            status: 500
+        });
+    }
 }
